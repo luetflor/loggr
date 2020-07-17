@@ -70,7 +70,7 @@ class PageSelectorState extends State<PageSelector>
     showModalBottomSheet(backgroundColor: data.background, context: context, builder: (context) {
       return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
         Container(height: 10,),
-        getModalButton(context, 'Rename', () => showDial),
+        getModalButton(context, 'Rename', () {}),
         getModalButton(context, 'Delete', () => setState(() {
           data.removePage(page);
           Navigator.pop(context);
