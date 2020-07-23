@@ -5,76 +5,56 @@ import 'package:loggr/Design.dart';
 import 'package:provider/provider.dart';
 
 import 'Data/LoggrPage.dart';
+import 'PageViewer.dart';
 
-class PageSelector extends StatefulWidget
+class PageSelector extends StatelessWidget
 {
-  @override
-  State<StatefulWidget> createState() {
-    return PageSelectorState();
-  }
-}
-
-class PageSelectorState extends State<PageSelector>
-{
-  LoggrData data;
-
-  @override
-  void initState() {
-    //TODO: Actually load Data
-    data = LoggrData.valued([
-      LoggrPage('Hallo'),
-      LoggrPage('Hallo Welt'),
-      LoggrPage('Hallo du Welt')
-    ]);
-    super.initState();
-  }
-
   @override
   Widget build(BuildContext context) {
-    var scaf = Scaffold(
-      backgroundColor: data.background,
-      floatingActionButton: AddFAB(onSubmit: (name) => setState(() {
-        var page = LoggrPage(name.trim());
-        data.addPage(page);
-      }),),
-      body: CustomScrollView(
-        slivers: <Widget>[
-          SliverAppBar(
-            backgroundColor: data.background,
-            flexibleSpace: Center(child: Text('Pages', style: TextStyle(color: data.textColor, fontSize: 40),),),
-            expandedHeight: 300,
+    return Consumer<LoggrData>(
+      builder: (context, data, _) {
+        return Scaffold(
+          backgroundColor: data.background,
+          floatingActionButton: AddFAB(onSubmit: (name) {
+            LoggrPage page = LoggrPage(name);
+            data.addPage(page);
+          },),
+          body: CustomScrollView(
+            slivers: <Widget>[
+              SliverAppBar(
+                backgroundColor: data.background,
+                flexibleSpace: Center(child: Text('Pages', style: TextStyle(color: data.textColor, fontSize: 40),),),
+                expandedHeight: 300,
+              ),
+              SliverList(delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                    return Container(
+                      margin: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                      alignment: AlignmentDirectional.topStart,
+                      child: FlatButton(child: Text(data.pages[index].title, style: TextStyle(fontSize: 30, color: data.textColor, fontWeight: FontWeight.w400), textAlign: TextAlign.start,),
+                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PageViewer(data.pages[index])) ), //Open Page
+                        onLongPress: () => showBottomSheet(context, data.pages[index], data), //Show Page Settings
+                      ),
+                    );
+                  },
+                  childCount: data.pages.length
+              ),)
+            ],
           ),
-          SliverList(delegate: SliverChildBuilderDelegate(
-              (context, index) {
-                return Container(
-                  margin: EdgeInsets.symmetric(horizontal: 30, vertical: 0),
-                  alignment: AlignmentDirectional.topStart,
-                  child: FlatButton(child: Text(data.pages[index].title, style: TextStyle(fontSize: 25, color: data.textColor), textAlign: TextAlign.start,),
-                    onPressed: () {}, //Open Page
-                    onLongPress: () => showBottomSheet(context, data.pages[index], data), //Show Page Settings
-                  ),
-                );
-              },
-              childCount: data.pages.length
-          ),)
-        ],
-      ),
-    );
-    return ChangeNotifierProvider<LoggrData>.value(
-      value: data,
-      child: scaf,
+        );
+      },
     );
   }
 
   void showBottomSheet(BuildContext context, LoggrPage page, LoggrData data) {
     showModalBottomSheet(backgroundColor: data.background, context: context, builder: (context) {
       return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        Container(height: 10,),
+        Container(height: 20,),
         getModalButton(context, 'Rename', () {}),
-        getModalButton(context, 'Delete', () => setState(() {
+        getModalButton(context, 'Delete', () {
           data.removePage(page);
           Navigator.pop(context);
-        }), color: Colors.redAccent),
+        }, color: Colors.redAccent),
         Container(height: 30,)
       ],);
     });
@@ -84,7 +64,7 @@ class PageSelectorState extends State<PageSelector>
 Widget getModalButton(context, String text, onPress, {color}) {
   var col = color == null ? Colors.black : color;
   return Container(
-    margin: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+    margin: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
     child: FlatButton(onPressed: () => onPress(), child: Text(text, style: TextStyle(fontSize: 25, color: col),)),
   );
 }

@@ -110,7 +110,7 @@ class AddFABState extends State<AddFAB> with SingleTickerProviderStateMixin
 
   @override
   void initState() {
-    controller = AnimationController(duration: Duration(milliseconds: 100), vsync: this);
+    controller = AnimationController(duration: Duration(milliseconds: 150), vsync: this);
     controller.addListener(() => setState(() {}));
     controller.addStatusListener((status) {
       if(status == AnimationStatus.dismissed) {
@@ -141,16 +141,18 @@ class AddFABState extends State<AddFAB> with SingleTickerProviderStateMixin
       ),
       Icon(Icons.close)
     ],);
-    return FloatingActionButton.extended(
+    if(editing) return FloatingActionButton.extended(
         onPressed: () => setState(() {
-          if(editing) {
-            controller.reverse();
-          } else {
-            editing = true;
-            controller.forward();
-          }
+          controller.reverse();
         }),
-        label: editing ? labelWrite : labelEmpty
+        label: labelWrite
+    );
+    return FloatingActionButton(
+      onPressed: () => setState(() {
+        editing = true;
+        controller.forward();
+      }),
+      child: labelEmpty,
     );
   }
 }
