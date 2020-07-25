@@ -15,7 +15,7 @@ class Surface extends StatelessWidget
 
   final Widget child;
 
-  const Surface({Key key, this.elevation = 1.0, this.color, this.child, this.constraints, this.width, this.height, this.alignment, this.margin, this.padding}) : super(key: key);
+  const Surface({Key key, this.elevation = 3.0, this.color, this.child, this.constraints, this.width, this.height, this.alignment, this.margin, this.padding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -40,8 +40,8 @@ class Surface extends StatelessWidget
         borderRadius: BorderRadius.circular(6.0),
         color: back,
         boxShadow: [
-            BoxShadow(color: Colors.black, offset: Offset(elevation, elevation), blurRadius: elevation.abs()*2),
-            BoxShadow(color: Colors.white, offset: -Offset(elevation, elevation), blurRadius: elevation.abs()*2),
+            BoxShadow(color: Colors.black.withAlpha(100), offset: Offset(elevation, elevation), blurRadius: elevation.abs()*2),
+            BoxShadow(color: Colors.white.withAlpha(500), offset: -Offset(elevation, elevation), blurRadius: elevation.abs()*2),
           ]
       ),
     );
@@ -56,12 +56,13 @@ class SurfaceShape extends StatelessWidget
   final Color color;
   final BoxConstraints constraints;
   final double width, height;
+  final EdgeInsets margin, padding;
   final AlignmentGeometry alignment;
   final ShapeBorder shape;
 
   final Widget child;
 
-  const SurfaceShape({Key key, this.elevation = 1.0, this.color, this.child, this.constraints, this.width, this.height, this.alignment, this.shape}) : super(key: key);
+  const SurfaceShape({Key key, this.elevation = 1.0, this.color, this.child, this.constraints, this.width, this.height, this.alignment, this.shape, this.margin, this.padding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +79,8 @@ class SurfaceShape extends StatelessWidget
       constraints: constraints,
       width: width,
       height: height,
+      margin: margin,
+      padding: padding,
       alignment: alignment,
       child: child,
       decoration: ShapeDecoration(

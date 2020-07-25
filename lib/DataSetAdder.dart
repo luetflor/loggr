@@ -87,7 +87,7 @@ class DataSetState extends State<DataSetAdder>
             children: <Widget>[
               Text('Type:', style: titleStyle, textAlign: TextAlign.start),
               Expanded(child: Container(), flex: 3,),
-              Surface(margin: EdgeInsets.all(5.0), width: 50, height: 50, child: Center(child: Text('1.23')),), //TODO: Change to Button
+              Surface(margin: EdgeInsets.all(5.0), width: 50, height: 50, child: Center(child: Text('1.23'))), //TODO: Change to Button
               Surface(margin: EdgeInsets.all(5.0), width: 50, height: 50, child: Center(child: Icon(Icons.functions)),),
               Expanded(child: Container(), flex: 1,),
             ],
