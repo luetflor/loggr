@@ -10,11 +10,12 @@ class Surface extends StatelessWidget
   final Color color;
   final BoxConstraints constraints;
   final double width, height;
+  final EdgeInsets margin, padding;
   final AlignmentGeometry alignment;
 
   final Widget child;
 
-  const Surface({Key key, this.elevation = 1.0, this.color, this.child, this.constraints, this.width, this.height, this.alignment}) : super(key: key);
+  const Surface({Key key, this.elevation = 1.0, this.color, this.child, this.constraints, this.width, this.height, this.alignment, this.margin, this.padding}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -28,6 +29,8 @@ class Surface extends StatelessWidget
       back = color;
     }
     return Container(
+      margin: margin,
+      padding: padding,
       constraints: constraints,
       width: width,
       height: height,
@@ -87,7 +90,6 @@ class SurfaceShape extends StatelessWidget
       ),
     );
   }
-
 }
 
 class AddFAB extends StatefulWidget

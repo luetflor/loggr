@@ -16,6 +16,7 @@ class LoggrData extends ChangeNotifier
   List<LoggrPage> _pages;
 
   Color _background = Colors.grey[300];
+  Color _backgroundAlt = Colors.grey[400];
   Color _accent = Colors.blueGrey;
   Color _textColor = Colors.black;
 
@@ -56,6 +57,12 @@ class LoggrData extends ChangeNotifier
   Color get textColor => _textColor;
   set textColor(Color txt) {
     _textColor = txt;
+    notifyListeners();
+  }
+
+  Color get backgroundAlt => _backgroundAlt;
+  set backgroundAlt(Color txt) {
+    _backgroundAlt = txt;
     notifyListeners();
   }
 }

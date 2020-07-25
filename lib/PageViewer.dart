@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'Data/LoggrData.dart';
 import 'Data/LoggrPage.dart';
+import 'ListDataView.dart';
 
 class PageViewer extends StatefulWidget
 {
@@ -32,7 +33,7 @@ class PageViewerState extends State<PageViewer>
     Color textC = Provider.of<LoggrData>(context).textColor;
     Color back = Provider.of<LoggrData>(context).background;
 
-    return Scaffold(
+    var scaf = Scaffold(
       backgroundColor: back,
       body: CustomScrollView(
         //Make the Graph View take 40% of the Screen initially (if possible else more) by scrolling down 60% of screen
@@ -45,7 +46,7 @@ class PageViewerState extends State<PageViewer>
             elevation: 0.0,
             centerTitle: true,
             title: Text(widget.page.title, style: TextStyle(color: textC)),
-            expandedHeight: MediaQuery.of(context).size.height,
+            expandedHeight: MediaQuery.of(context).size.height - 130,
             //flexibleSpace: , TODO: Add Graph Drawer
           ),
 
@@ -63,15 +64,19 @@ class PageViewerState extends State<PageViewer>
                 }),
               )
             ],),
-            Divider(height: 4, thickness: 1, indent: 20, endIndent: 20),
-            Container(height: 200)
           ]),),
 
           //TODO: Add Actual Data View
-          //if(view == View.List) ListDataView(),
-          //if(view == View.Grid) GridDataView()
+          if(view == View.List) ListDataView(),
+          //if(view == View.Grid) GridDataView(),
         ],
       ),
+    );
+
+    //Provide the Page Data
+    return ChangeNotifierProvider<LoggrPage>.value(
+      value: widget.page,
+      builder: (context, child) => scaf,
     );
   }
 }
@@ -139,6 +144,8 @@ class AnimPainter extends CustomPainter
   
   @override
   void paint(Canvas canvas, Size size) {
+    //Progress 1.0 -> list
+    //         0.0 -> grid
     double extent = size.height < size.width ? size.height : size.width;
     double dist = extent/3.0;
     double marg = extent*0.1;
@@ -147,7 +154,8 @@ class AnimPainter extends CustomPainter
         double posX = (1.0-progress)*dist*(x-0.5) + progress*extent*0.5*x;
         if(x > 1) posX += progress*0.5*extent; // Make the outer grid items disappear completely
         double width = (1.0-progress)*(dist-marg) + progress*(extent-marg);
-        canvas.drawRect(Rect.fromCenter(center: Offset(posX, dist*(y-0.5)), width: width, height: dist-marg), pen);
+        double height = (1.0-progress)*(dist-marg) + progress*(dist*0.4);
+        canvas.drawRect(Rect.fromCenter(center: Offset(posX, dist*(y-0.5)), width: width, height: height), pen);
       }
     }
   }
