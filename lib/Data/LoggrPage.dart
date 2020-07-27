@@ -69,7 +69,7 @@ enum Type {
 class DataSet extends ChangeNotifier
 {
   String _name;
-  Type _type;
+  Type _type = Type.Nothing;
 
   List<double> _values;
 

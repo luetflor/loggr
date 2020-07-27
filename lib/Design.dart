@@ -87,12 +87,81 @@ class SurfaceShape extends StatelessWidget
         shape: shape,
         color: back,
           shadows: [
-            BoxShadow(color: Colors.black, offset: Offset(elevation, elevation), blurRadius: elevation.abs()),
-            BoxShadow(color: color == null ? Colors.white : color, offset: -Offset(elevation, elevation), blurRadius: elevation.abs()),
+            BoxShadow(color: Colors.black, offset: Offset(elevation, elevation), blurRadius: elevation.abs()*2),
+            BoxShadow(color: Colors.white, offset: -Offset(elevation, elevation), blurRadius: elevation.abs()*2),
           ]
       ),
     );
   }
+}
+
+class SurfaceButton extends StatefulWidget
+{
+  final double maxElevation;
+  final Color color;
+  final EdgeInsets margin, padding;
+  final BoxConstraints constraints;
+  final double width, height;
+  final AlignmentGeometry alignment;
+  final ShapeBorder shape;
+  final Function onPress;
+
+  final Widget child;
+
+  final bool pressed;
+
+  const SurfaceButton(this.pressed, {Key key, this.maxElevation = 1.0, this.color,
+    this.constraints, this.width, this.height, this.alignment, this.shape = const StadiumBorder(),
+    this.child, this.onPress, this.margin, this.padding}) : super(key: key);
+
+  @override
+  State<StatefulWidget> createState() {
+    return SurfaceButtonState();
+  }
+}
+
+class SurfaceButtonState extends State<SurfaceButton> with SingleTickerProviderStateMixin
+{
+  AnimationController controller;
+  Animation anim;
+
+  @override
+  void initState() {
+    controller = AnimationController(value: widget.pressed ? -1.0 : 1.0, vsync: this, duration: Duration(milliseconds: 300));
+    controller.addListener(() => setState(() {}));
+    var a = CurvedAnimation(parent: controller, curve: Curves.easeInOutQuint);
+    anim = Tween<double>(begin: -widget.maxElevation, end: widget.maxElevation).animate(a);
+    super.initState();
+  }
+
+  @override
+  void didUpdateWidget(SurfaceButton oldWidget) {
+    if(widget.pressed)
+      controller.reverse();
+    else
+      controller.forward();
+    super.didUpdateWidget(oldWidget);
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      child: SurfaceShape(
+        margin: widget.margin,
+        padding: widget.padding,
+        color: widget.color,
+        constraints: widget.constraints,
+        width: widget.width,
+        height: widget.height,
+        alignment: widget.alignment,
+        shape: widget.shape,
+        child: widget.child,
+        elevation: anim.value,
+      ),
+      onTap: () => widget.onPress(),
+    );
+  }
+
 }
 
 class AddFAB extends StatefulWidget
