@@ -163,6 +163,7 @@ class NumberTypeEditor extends StatelessWidget
           width: 50, height: 50,
           onPress: () => setParentState(() => workingSet.type = Type.Nothing),
         ),
+        Expanded(child: Container(),)
       ],)
     ],);
   }

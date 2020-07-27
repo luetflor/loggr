@@ -6,19 +6,42 @@ import 'package:provider/provider.dart';
 import 'Data/LoggrData.dart';
 import 'Data/LoggrPage.dart';
 
-class ListDataView extends StatelessWidget
-{
+class ListDataView extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return ListDataViewState();
+  }
+}
+
+class ListDataViewState extends State<ListDataView> {
+  List<TextEditingController> controller = List<TextEditingController>();
+  List<FocusNode> nodes = List<FocusNode>();
+
   void openSetAdder(BuildContext context, LoggrPage page) async {
-    var result = await Navigator.push(context, MaterialPageRoute(builder: (context) => DataSetAdder()));
-    if(result != null) {
-      if(result is DataSet) {
+    var result = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => DataSetAdder()));
+    if (result != null) {
+      if (result is DataSet) {
         page.addSet(result);
       }
     }
   }
 
   void submitData(LoggrPage page) {
-
+    for(int i=0; i<page.sets.length; i++) {
+      //Add Parsed Value to DataSet
+      page.sets[i].addValue(double.parse(controller[i].text.replaceAll(',', '.')));
+      //Clear Textfield
+      controller[i].clear();
+    }
+    //Test Print Data
+    for(var set in page.sets) {
+      String line = set.name + ': ';
+      for(var val in set.values) {
+        line += val.toString() + ' ';
+      }
+      print(line);
+    }
   }
 
   @override
@@ -26,16 +49,23 @@ class ListDataView extends StatelessWidget
     LoggrData data = Provider.of<LoggrData>(context);
     return Consumer<LoggrPage>(
       builder: (BuildContext context, page, Widget child) {
-        return SliverList(delegate: SliverChildBuilderDelegate(
-            (context, index) {
-              //Bottom Bar displaying Button Options
-              if(index == page.sets.length+1)
-                return Row(children: <Widget>[
+        return SliverList(
+          delegate: SliverChildBuilderDelegate((context, index) {
+            //Build TextEditingControllers and FocusNodes if necessary
+            for (int i = controller.length; i < page.sets.length; i++) {
+              controller.add(TextEditingController());
+              nodes.add(FocusNode());
+            }
+            //Bottom Bar displaying Button Options
+            if (index == page.sets.length + 1)
+              return Row(
+                children: <Widget>[
                   Container(
                     child: OutlineButton(
-                        child: Text('Add Set', style: TextStyle(color: data.textColor)),
-                        shape: StadiumBorder(),
-                        onPressed: () => openSetAdder(context, page),
+                      child: Text('Add Set',
+                          style: TextStyle(color: data.textColor)),
+                      shape: StadiumBorder(),
+                      onPressed: () => openSetAdder(context, page),
                     ),
                     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                   ),
@@ -43,43 +73,91 @@ class ListDataView extends StatelessWidget
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: RaisedButton(
-                      child: Text('Submit', style: TextStyle(color: data.background)),
+                      child: Text('Submit',
+                          style: TextStyle(color: data.background)),
                       color: data.accent,
                       shape: StadiumBorder(),
                       onPressed: () => submitData(page),
                     ),
                   )
-                ],);
-              if(index == page.sets.length)
-                return Divider(indent: 30, endIndent: 30,);
-              //Else return Set Element
-              return Container(
-                margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+                ],
+              );
+            if (index == page.sets.length)
+              return Divider(
+                indent: 30,
+                endIndent: 30,
+              );
+            //Else return Set Element
+            return Container(
+              margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+              child: GestureDetector(
+                onLongPress: () => showSetModal(context, page.sets[index], data, page),
                 child: Row(
                   children: <Widget>[
-                    GestureDetector(
-                      child: Text(page.sets[index].name, style: TextStyle(color: data.textColor, fontSize: 20)),
-                      onLongPress: () {}, //Open Set Options
+                    Text(page.sets[index].name, style: TextStyle(color: data.textColor, fontSize: 20)),
+                    if(page.sets[index].type == Type.Input) Container(
+                      margin: EdgeInsets.symmetric(horizontal: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: ShapeDecoration(shape: StadiumBorder(), color: data.accent),
+                      child: Text('In', style: TextStyle(color: data.background),),
                     ),
-                    Expanded(child: Container(), flex: 1,),
+                    if(page.sets[index].type == Type.Output) Container(
+                      margin: EdgeInsets.symmetric(horizontal: 10),
+                      padding: EdgeInsets.symmetric(horizontal: 5, vertical: 1),
+                      decoration: ShapeDecoration(shape: StadiumBorder(), color: data.accent),
+                      child: Text('Out', style: TextStyle(color: data.background),),
+                    ),
+                    Expanded(
+                      child: Container(),
+                      flex: 1,
+                    ),
                     Container(
                       width: 130,
-                      decoration: ShapeDecoration(shape: StadiumBorder(), color: data.backgroundAlt),
+                      decoration: ShapeDecoration(
+                          shape: StadiumBorder(), color: data.backgroundAlt),
                       child: TextField(
+                        controller: controller[index],
+                        focusNode: nodes[index],
                         textAlign: TextAlign.center,
-                        keyboardType: TextInputType.numberWithOptions(decimal: true, signed: true),
+                        keyboardType: TextInputType.numberWithOptions(
+                            decimal: true, signed: true),
                         decoration: InputDecoration.collapsed(hintText: '---'),
                         style: TextStyle(color: data.textColor),
+                        onSubmitted: (text) {
+                          nodes[index].unfocus();
+                          if(index < nodes.length-1) nodes[index+1].requestFocus();
+                        },
                       ),
                     )
                   ],
                 ),
-              );
-            },
-            childCount: page.sets.length+2
-        ),);
+              ),
+            );
+          }, childCount: page.sets.length + 2),
+        );
       },
     );
   }
 
+  showSetModal(BuildContext context, DataSet set, LoggrData data, LoggrPage page) {
+    showModalBottomSheet(backgroundColor: data.background, context: context, builder: (context) {
+      return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+        Container(height: 20,),
+        getModalButton(context, 'Rename', () {}),
+        getModalButton(context, 'Set as Input', () => set.type = Type.Input),
+        getModalButton(context, 'Set as Output', () => set.type = Type.Output),
+        getModalButton(context, 'Set as Nothing', () => set.type = Type.Nothing),
+        getModalButton(context, 'Delete', () => page.removeSet(set), color: Colors.redAccent),
+        Container(height: 30,)
+      ],);
+    });
+  }
+
+  Widget getModalButton(context, String text, onPress, {color}) {
+    var col = color == null ? Colors.black : color;
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+      child: FlatButton(onPressed: () {onPress(); Navigator.pop(context);}, child: Text(text, style: TextStyle(fontSize: 25, color: col),)),
+    );
+  }
 }
