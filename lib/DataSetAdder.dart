@@ -17,10 +17,22 @@ enum ValueType {
   Number,
   Function
 }
-class DataSetState extends State<DataSetAdder>
+class DataSetState extends State<DataSetAdder> with SingleTickerProviderStateMixin
 {
   ValueType type = ValueType.Number;
   DataSet _workingSet = DataSet('');
+
+  AnimationController controller;
+  Animation animType;
+
+  @override
+  void initState() {
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    controller.addListener(() => setState(() {}));
+    controller.forward(); // Start of animating in
+    animType = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+    super.initState();
+  }
 
   //Check validity of Data and submit
   void submit() {
@@ -65,7 +77,7 @@ class DataSetState extends State<DataSetAdder>
         child: Icon(Icons.check, color: data.background,),
         onPressed: legal ? () => submit() : null,
       ),
-      body: Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+      body: Column(mainAxisSize: MainAxisSize.max, crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
 
         //Title Editor
         Container(
@@ -99,14 +111,20 @@ class DataSetState extends State<DataSetAdder>
                 margin: EdgeInsets.all(5),
                 child: Center(child: Text('1.23'),),
                 width: 50, height: 50,
-                onPress: () => setState(() => type = ValueType.Number),
+                onPress: () => setState(() {
+                  type = ValueType.Number;
+                  controller.forward(from: 0.0);
+                }),
               ),
               SurfaceButton(
                 type == ValueType.Function,
                 margin: EdgeInsets.all(5),
                 child: Center(child: Icon(Icons.functions),),
                 width: 50, height: 50,
-                onPress: () => setState(() => type = ValueType.Function),
+                onPress: () => setState(() {
+                  type = ValueType.Function;
+                  controller.forward(from: 0.0);
+                }),
               ),
               Expanded(child: Container(), flex: 1,),
             ],
@@ -114,12 +132,14 @@ class DataSetState extends State<DataSetAdder>
         ),
 
         //Type Data Editor
-        Surface(
-          elevation: -1.0,
-          constraints: BoxConstraints(minWidth: double.infinity, maxWidth: double.infinity, maxHeight: double.infinity),
-          margin: EdgeInsets.symmetric(horizontal: 10),
-          padding: EdgeInsets.all(20),
-          child: typeWidget,
+        Expanded(
+          child: Surface(
+            elevation: -animType.value,
+            constraints: BoxConstraints.expand(),
+            margin: EdgeInsets.symmetric(horizontal: 10),
+            padding: EdgeInsets.all(20),
+            child: Opacity(child: typeWidget, opacity: animType.value),
+          ),
         )
       ],),
     );
@@ -137,7 +157,7 @@ class NumberTypeEditor extends StatelessWidget
 
   @override
   Widget build(BuildContext context) {
-    return Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
+    return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.max, children: <Widget>[
       Text('Numbers', style: titleStyle,),
       Row(children: <Widget>[
         Text('Axis:', style: titleStyle,),
