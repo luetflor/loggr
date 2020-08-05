@@ -95,7 +95,7 @@ class SurfaceShape extends StatelessWidget
   }
 }
 
-class SurfaceButton extends StatefulWidget
+class SurfaceSwitch extends StatefulWidget
 {
   final double maxElevation;
   final Color color;
@@ -110,17 +110,17 @@ class SurfaceButton extends StatefulWidget
 
   final bool pressed;
 
-  const SurfaceButton(this.pressed, {Key key, this.maxElevation = 1.0, this.color,
+  const SurfaceSwitch(this.pressed, {Key key, this.maxElevation = 1.0, this.color,
     this.constraints, this.width, this.height, this.alignment, this.shape = const StadiumBorder(),
     this.child, this.onPress, this.margin, this.padding}) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
-    return SurfaceButtonState();
+    return SurfaceSwitchState();
   }
 }
 
-class SurfaceButtonState extends State<SurfaceButton> with SingleTickerProviderStateMixin
+class SurfaceSwitchState extends State<SurfaceSwitch> with SingleTickerProviderStateMixin
 {
   AnimationController controller;
   Animation anim;
@@ -135,7 +135,7 @@ class SurfaceButtonState extends State<SurfaceButton> with SingleTickerProviderS
   }
 
   @override
-  void didUpdateWidget(SurfaceButton oldWidget) {
+  void didUpdateWidget(SurfaceSwitch oldWidget) {
     if(widget.pressed)
       controller.reverse();
     else

@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 
 import 'Data/LoggrPage.dart';
 import 'Design.dart';
+import 'FormulaEditor.dart';
 
 class DataSetAdder extends StatefulWidget
 {
@@ -106,7 +107,7 @@ class DataSetState extends State<DataSetAdder> with SingleTickerProviderStateMix
             children: <Widget>[
               Text('Type:', style: titleStyle, textAlign: TextAlign.start),
               Expanded(child: Container(), flex: 3,),
-              SurfaceButton(
+              SurfaceSwitch(
                 type == ValueType.Number,
                 margin: EdgeInsets.all(5),
                 child: Center(child: Text('1.23'),),
@@ -116,7 +117,7 @@ class DataSetState extends State<DataSetAdder> with SingleTickerProviderStateMix
                   controller.forward(from: 0.0);
                 }),
               ),
-              SurfaceButton(
+              SurfaceSwitch(
                 type == ValueType.Function,
                 margin: EdgeInsets.all(5),
                 child: Center(child: Icon(Icons.functions),),
@@ -124,6 +125,7 @@ class DataSetState extends State<DataSetAdder> with SingleTickerProviderStateMix
                 onPress: () => setState(() {
                   type = ValueType.Function;
                   controller.forward(from: 0.0);
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => FormulaEditor(title: 'Add Function')));
                 }),
               ),
               Expanded(child: Container(), flex: 1,),
@@ -162,21 +164,21 @@ class NumberTypeEditor extends StatelessWidget
       Row(children: <Widget>[
         Text('Axis:', style: titleStyle,),
         Expanded(child: Container()),
-        SurfaceButton(
+        SurfaceSwitch(
           workingSet.type == Type.Input,
           margin: EdgeInsets.all(5),
           child: Center(child: Text('In'),),
           width: 50, height: 50,
           onPress: () => setParentState(() => workingSet.type = Type.Input),
         ),
-        SurfaceButton(
+        SurfaceSwitch(
           workingSet.type == Type.Output,
           margin: EdgeInsets.all(5),
           child: Center(child: Text('Out'),),
           width: 50, height: 50,
           onPress: () => setParentState(() => workingSet.type = Type.Output),
         ),
-        SurfaceButton(
+        SurfaceSwitch(
           workingSet.type == Type.Nothing,
           margin: EdgeInsets.all(5),
           child: Center(child: Text('None'),),
