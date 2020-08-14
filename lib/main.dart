@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
 import 'Data/LoggrData.dart';
-import 'Data/LoggrPage.dart';
 import 'PageSelector.dart';
 
 void main() {
@@ -13,11 +12,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (context) => LoggrData.valued([
-        LoggrPage('Hallo'),
-        LoggrPage('Hallo Welt'),
-        LoggrPage('Hallo du Welt')
-      ]),
+      create: (context) => LoggrData.load(),
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
         title: 'Loggr',

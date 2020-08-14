@@ -13,12 +13,34 @@ class PageSelector extends StatelessWidget
   Widget build(BuildContext context) {
     return Consumer<LoggrData>(
       builder: (context, data, _) {
+        Widget list;
+        if(data.loading) {
+          list = SliverList(delegate: SliverChildListDelegate([
+            Container(
+              margin: EdgeInsets.all(50),
+              alignment: Alignment.topCenter,
+              child: CircularProgressIndicator(),
+            )
+          ]),);
+        } else {
+          list = SliverList(delegate: SliverChildBuilderDelegate(
+                  (context, index) {
+                return Container(
+                  margin: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+                  alignment: AlignmentDirectional.topStart,
+                  child: FlatButton(child: Text(data.pages[index].title, style: TextStyle(fontSize: 30, color: data.textColor, fontWeight: FontWeight.w400), textAlign: TextAlign.start,),
+                    onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PageViewer(data.pages[index])) ), //Open Page
+                    onLongPress: () => showBottomSheet(context, data.pages[index], data), //Show Page Settings
+                  ),
+                );
+              },
+              childCount: data.pages.length
+          ),);
+        }
+
         return Scaffold(
           backgroundColor: data.background,
-          floatingActionButton: AddFAB(onSubmit: (name) {
-            LoggrPage page = LoggrPage(name);
-            data.addPage(page);
-          },),
+          floatingActionButton: AddFAB(onSubmit: (name) => addPage(name, data),),
           body: CustomScrollView(
             slivers: <Widget>[
               SliverAppBar(
@@ -26,24 +48,19 @@ class PageSelector extends StatelessWidget
                 flexibleSpace: Center(child: Text('Pages', style: TextStyle(color: data.textColor, fontSize: 40),),),
                 expandedHeight: 300,
               ),
-              SliverList(delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-                      alignment: AlignmentDirectional.topStart,
-                      child: FlatButton(child: Text(data.pages[index].title, style: TextStyle(fontSize: 30, color: data.textColor, fontWeight: FontWeight.w400), textAlign: TextAlign.start,),
-                        onPressed: () => Navigator.push(context, MaterialPageRoute(builder: (context) => PageViewer(data.pages[index])) ), //Open Page
-                        onLongPress: () => showBottomSheet(context, data.pages[index], data), //Show Page Settings
-                      ),
-                    );
-                  },
-                  childCount: data.pages.length
-              ),)
+              list
             ],
           ),
         );
       },
     );
+  }
+
+  void addPage(name, LoggrData data) {
+    if(!name.contains('/') && !name.contains('\\') && !name.contains('.')) {
+      LoggrPage page = LoggrPage(name, LoadState.loaded);
+      data.addPage(page);
+    }
   }
 
   void showBottomSheet(BuildContext context, LoggrPage page, LoggrData data) {

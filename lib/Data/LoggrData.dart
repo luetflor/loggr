@@ -1,6 +1,8 @@
+import 'dart:io';
 import 'dart:ui';
 
 import 'package:flutter/material.dart';
+import 'package:path_provider/path_provider.dart';
 
 import 'LoggrPage.dart';
 
@@ -24,7 +26,32 @@ class LoggrData extends ChangeNotifier
     _pages = List<LoggrPage>();
   }
 
+  LoggrData.load() {
+    _loading = true;
+    load();
+  }
+
   LoggrData.valued(this._pages);
+
+  Future<void> load() async {
+    //Get Page Paths
+    var p = await getApplicationDocumentsDirectory();
+    Directory dir = Directory(p.path);
+    var files = dir.list(recursive: false);
+    _pages = List<LoggrPage>();
+    files.listen((FileSystemEntity entity) {
+      String name = entity.path.replaceAll(entity.parent.path, '');
+      name = name.replaceAll('/', '');
+      name = name.replaceAll('\\', '');
+      if(name.contains('.json')) {
+        name = name.replaceAll('.json', '');
+        _pages.add(LoggrPage(name, LoadState.empty));
+      }
+    }, onDone: () {
+      _loading = false;
+      notifyListeners();
+    });
+  }
 
   bool get loading => _loading;
   set loading(bool l) {

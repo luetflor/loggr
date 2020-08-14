@@ -1,8 +1,17 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:convert';
+import 'dart:io';
 
+import 'package:flutter/cupertino.dart';
+import 'package:path_provider/path_provider.dart';
+
+enum LoadState {
+  loading,
+  empty,
+  loaded
+}
 class LoggrPage extends ChangeNotifier
 {
-  bool _loading = false;
+  LoadState _loading;
 
   String _title;
   List<DataSet> _sets;
@@ -11,13 +20,41 @@ class LoggrPage extends ChangeNotifier
   Function(String) nameChangedListener;
 
   //Creates empty page
-  LoggrPage(String title) {
+  LoggrPage(String title, [LoadState isLoading = LoadState.empty]) {
     _title = title;
     _sets = List<DataSet>();
+    _loading = isLoading;
   }
 
-  bool get loading => _loading;
-  set loading(bool l) {
+  @override
+  void notifyListeners() {
+    save();
+    super.notifyListeners();
+  }
+
+  Future<void> save() async {
+    //Save in Apps private document storage
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/$title.json');
+    String json = getAsJSON();
+    print('Saving: \n' + json);
+    file.writeAsString(json);
+  }
+
+  Future<void> load({Function onFinished}) async {
+    _loading = LoadState.loading;
+    final dir = await getApplicationDocumentsDirectory();
+    File file = File('${dir.path}/$title.json');
+    String json = await file.readAsString();
+    print('Loading: \n' + json);
+    setFromJSON(json);
+    _loading = LoadState.loaded;
+    notifyListeners();
+    if(onFinished != null) onFinished();
+  }
+
+  LoadState get loading => _loading;
+  set loading(LoadState l) {
     _loading = l;
     notifyListeners();
   }
@@ -57,7 +94,19 @@ class LoggrPage extends ChangeNotifier
       'sets': setMap
     };
   }
-  LoggrPage.mapped(Map<String, dynamic> map) {
+  setFromMap(Map<String, dynamic> map) {
+    _title = map['title'];
+    _sets = List<DataSet>();
+    for(var set in map['sets']) {
+      _sets.add(DataSet.mapped(set));
+    }
+  }
+
+  String getAsJSON() {
+    return jsonEncode(getAsMap());
+  }
+  setFromJSON(String json) {
+    Map<String, dynamic> map = jsonDecode(json);
     _title = map['title'];
     _sets = List<DataSet>();
     for(var set in map['sets']) {
@@ -117,7 +166,7 @@ class DataSet extends ChangeNotifier
   DataSet.mapped(Map<String, dynamic> data) {
     _type = Type.values[data['type']];
     _name = data['name'];
-    _values = data['values'];
+    _values = List.castFrom(data['values']);
   }
 
 }

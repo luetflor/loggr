@@ -30,10 +30,35 @@ class PageViewerState extends State<PageViewer>
   View view = View.List;
 
   @override
+  void initState() {
+    if(widget.page.loading == LoadState.empty) {
+      widget.page.load().then((value) => setState(() {}));
+    }
+    super.initState();
+  }
+
+  @override
   Widget build(BuildContext context) {
     String typeText = view == View.List ? 'List' : 'Grid';
-    Color textC = Provider.of<LoggrData>(context).textColor;
-    Color back = Provider.of<LoggrData>(context).background;
+    LoggrData data = Provider.of<LoggrData>(context);
+    Color textC = data.textColor;
+    Color back = data.background;
+
+    if(widget.page.loading != LoadState.loaded) {
+      return Scaffold(
+        backgroundColor: back,
+        appBar: AppBar(
+          iconTheme: IconThemeData(color: textC),
+          backgroundColor: back,
+          elevation: 0.0,
+          centerTitle: true,
+          title: Text(widget.page.title, style: TextStyle(color: textC)),
+        ),
+        body: Center(
+          child: CircularProgressIndicator(),
+        )
+      );
+    }
 
     var scaf = Scaffold(
       backgroundColor: back,
