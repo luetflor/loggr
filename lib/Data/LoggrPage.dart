@@ -34,8 +34,11 @@ class LoggrPage extends ChangeNotifier
 
   Future<void> save() async {
     //Save in Apps private document storage
-    final dir = await getApplicationDocumentsDirectory();
-    File file = File('${dir.path}/pages/$title.json');
+    final appDir = await getApplicationDocumentsDirectory();
+    Directory dir = Directory('${appDir.path}/pages/');
+    dir.create(recursive: true);
+    print(dir.path + title + '.json');
+    File file = File(dir.path + title + '.json');
     String json = getAsJSON();
     print('Saving: \n' + json);
     file.writeAsString(json);
@@ -43,8 +46,10 @@ class LoggrPage extends ChangeNotifier
 
   Future<void> load({Function onFinished}) async {
     _loading = LoadState.loading;
-    final dir = await getApplicationDocumentsDirectory();
-    File file = File('${dir.path}/pages/$title.json');
+    final appDir = await getApplicationDocumentsDirectory();
+    Directory dir = Directory('${appDir.path}/pages/');
+    dir.create(recursive: true);
+    File file = File(dir.path + title + '.json');
     String json = await file.readAsString();
     print('Loading: \n' + json);
     setFromJSON(json);
@@ -83,6 +88,9 @@ class LoggrPage extends ChangeNotifier
     _sets.remove(set);
     notifyListeners();
   }
+
+  List<DataSet> get inputs =>  _sets.where((element) => element.type == Type.Input).toList();
+  List<DataSet> get outputs =>  _sets.where((element) => element.type == Type.Output).toList();
 
   Map<String, dynamic> getAsMap() {
     var setMap = List<Map<String, dynamic>>();

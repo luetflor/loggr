@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
+import 'package:loggr/Graphs/GraphView.dart';
 import 'package:provider/provider.dart';
 
 import '../Data/LoggrData.dart';
@@ -74,7 +75,7 @@ class PageViewerState extends State<PageViewer>
             centerTitle: true,
             title: Text(widget.page.title, style: TextStyle(color: textC)),
             expandedHeight: MediaQuery.of(context).size.height - 130,
-            //flexibleSpace: , TODO: Add Graph Drawer
+            flexibleSpace: GraphView(),
           ),
 
           //Data View Type Selector

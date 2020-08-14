@@ -35,8 +35,9 @@ class LoggrData extends ChangeNotifier
 
   Future<void> load() async {
     //Get Page Paths
-    var p = await getApplicationDocumentsDirectory();
-    Directory dir = Directory(p.path + '/pages/');
+    final appDir = await getApplicationDocumentsDirectory();
+    Directory dir = Directory('${appDir.path}/pages/');
+    dir.create(recursive: true);
     var files = dir.list(recursive: false);
     _pages = List<LoggrPage>();
     files.listen((FileSystemEntity entity) {
