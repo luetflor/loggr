@@ -52,17 +52,8 @@ class ListDataViewState extends State<ListDataView> {
             //Bottom Bar displaying Button Options
             if (index == page.sets.length + 1)
               return Row(
+                mainAxisAlignment: MainAxisAlignment.end,
                 children: <Widget>[
-                  Container(
-                    child: OutlineButton(
-                      child: Text('Add Set',
-                          style: TextStyle(color: data.textColor)),
-                      shape: StadiumBorder(),
-                      onPressed: () => openSetAdder(context, page),
-                    ),
-                    margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                  ),
-                  Expanded(child: Container()),
                   Container(
                     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
                     child: RaisedButton(

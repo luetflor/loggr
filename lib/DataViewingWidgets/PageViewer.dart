@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import '../Data/LoggrData.dart';
 import '../Data/LoggrPage.dart';
+import '../DataSetAdder.dart';
 import 'GridDataView.dart';
 import 'ListDataView.dart';
 
@@ -54,6 +55,18 @@ class PageViewerState extends State<PageViewer>
           //Data View Type Selector
           SliverList(delegate: SliverChildListDelegate([
             Row(mainAxisAlignment: MainAxisAlignment.end, crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+              Container(
+                child: Consumer<LoggrPage>(
+                  builder: (context, page, child) => OutlineButton(
+                    child: Text('Add Set',
+                        style: TextStyle(color: textC)),
+                    shape: StadiumBorder(),
+                    onPressed: () => openSetAdder(context, page),
+                  ),
+                ),
+                margin: EdgeInsets.symmetric(horizontal: 20),
+              ),
+              Expanded(child: Container(),),
               Text(typeText),
               IconButton(
                 icon: SwitchAnimIcon(view),
@@ -78,6 +91,16 @@ class PageViewerState extends State<PageViewer>
       value: widget.page,
       builder: (context, child) => scaf,
     );
+  }
+
+  void openSetAdder(BuildContext context, LoggrPage page) async {
+    var result = await Navigator.push(
+        context, MaterialPageRoute(builder: (context) => DataSetAdder()));
+    if (result != null) {
+      if (result is DataSet) {
+        page.addSet(result);
+      }
+    }
   }
 }
 
