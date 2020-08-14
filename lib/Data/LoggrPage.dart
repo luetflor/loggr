@@ -35,7 +35,7 @@ class LoggrPage extends ChangeNotifier
   Future<void> save() async {
     //Save in Apps private document storage
     final dir = await getApplicationDocumentsDirectory();
-    File file = File('${dir.path}/$title.json');
+    File file = File('${dir.path}/pages/$title.json');
     String json = getAsJSON();
     print('Saving: \n' + json);
     file.writeAsString(json);
@@ -44,7 +44,7 @@ class LoggrPage extends ChangeNotifier
   Future<void> load({Function onFinished}) async {
     _loading = LoadState.loading;
     final dir = await getApplicationDocumentsDirectory();
-    File file = File('${dir.path}/$title.json');
+    File file = File('${dir.path}/pages/$title.json');
     String json = await file.readAsString();
     print('Loading: \n' + json);
     setFromJSON(json);

@@ -36,13 +36,14 @@ class LoggrData extends ChangeNotifier
   Future<void> load() async {
     //Get Page Paths
     var p = await getApplicationDocumentsDirectory();
-    Directory dir = Directory(p.path);
+    Directory dir = Directory(p.path + '/pages/');
     var files = dir.list(recursive: false);
     _pages = List<LoggrPage>();
     files.listen((FileSystemEntity entity) {
       String name = entity.path.replaceAll(entity.parent.path, '');
       name = name.replaceAll('/', '');
       name = name.replaceAll('\\', '');
+      //Only add the actual json files
       if(name.contains('.json')) {
         name = name.replaceAll('.json', '');
         _pages.add(LoggrPage(name, LoadState.empty));
