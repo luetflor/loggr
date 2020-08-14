@@ -1,3 +1,7 @@
-# loggr
+![Loggr Logo](LogoFont.png)
 
-Data Logging App
+#About
+
+Loggr is a Data logging App allowing with a user-friendly interface to allow
+quick editing of data, but also aiming to include including features for advanced 
+Data Analysis like function fitting.
