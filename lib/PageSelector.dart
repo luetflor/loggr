@@ -5,7 +5,7 @@ import 'package:loggr/Design.dart';
 import 'package:provider/provider.dart';
 
 import 'Data/LoggrPage.dart';
-import 'PageViewer.dart';
+import 'DataViewingWidgets/PageViewer.dart';
 
 class PageSelector extends StatelessWidget
 {

@@ -3,8 +3,8 @@ import 'dart:math' as math;
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
-import 'Data/LoggrData.dart';
-import 'Data/LoggrPage.dart';
+import '../Data/LoggrData.dart';
+import '../Data/LoggrPage.dart';
 import 'GridDataView.dart';
 import 'ListDataView.dart';
 
