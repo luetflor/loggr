@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'Data/LoggrData.dart';
 import 'Data/LoggrPage.dart';
+import 'GridDataView.dart';
 import 'ListDataView.dart';
 
 class PageViewer extends StatefulWidget
@@ -66,9 +67,8 @@ class PageViewerState extends State<PageViewer>
             ],),
           ]),),
 
-          //TODO: Add Actual Data View
           if(view == View.List) ListDataView(),
-          //if(view == View.Grid) GridDataView(),
+          if(view == View.Grid) GridDataView(),
         ],
       ),
     );
@@ -79,6 +79,28 @@ class PageViewerState extends State<PageViewer>
       builder: (context, child) => scaf,
     );
   }
+}
+
+showSetModal(BuildContext context, DataSet set, LoggrData data, LoggrPage page) {
+  showModalBottomSheet(backgroundColor: data.background, context: context, builder: (context) {
+    return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
+      Container(height: 20,),
+      getModalButton(context, 'Rename', () {}),
+      getModalButton(context, 'Set as Input', () => set.type = Type.Input),
+      getModalButton(context, 'Set as Output', () => set.type = Type.Output),
+      getModalButton(context, 'Set as Nothing', () => set.type = Type.Nothing),
+      getModalButton(context, 'Delete', () => page.removeSet(set), color: Colors.redAccent),
+      Container(height: 30,)
+    ],);
+  });
+}
+
+Widget getModalButton(context, String text, onPress, {color}) {
+  var col = color == null ? Colors.black : color;
+  return Container(
+    margin: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
+    child: FlatButton(onPressed: () {onPress(); Navigator.pop(context);}, child: Text(text, style: TextStyle(fontSize: 25, color: col),)),
+  );
 }
 
 class SwitchAnimIcon extends StatefulWidget

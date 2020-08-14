@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 
 import 'Data/LoggrData.dart';
 import 'Data/LoggrPage.dart';
+import 'PageViewer.dart';
 
 class ListDataView extends StatefulWidget {
   @override
@@ -33,14 +34,6 @@ class ListDataViewState extends State<ListDataView> {
       page.sets[i].addValue(double.parse(controller[i].text.replaceAll(',', '.')));
       //Clear Textfield
       controller[i].clear();
-    }
-    //Test Print Data
-    for(var set in page.sets) {
-      String line = set.name + ': ';
-      for(var val in set.values) {
-        line += val.toString() + ' ';
-      }
-      print(line);
     }
   }
 
@@ -136,28 +129,6 @@ class ListDataViewState extends State<ListDataView> {
           }, childCount: page.sets.length + 2),
         );
       },
-    );
-  }
-
-  showSetModal(BuildContext context, DataSet set, LoggrData data, LoggrPage page) {
-    showModalBottomSheet(backgroundColor: data.background, context: context, builder: (context) {
-      return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
-        Container(height: 20,),
-        getModalButton(context, 'Rename', () {}),
-        getModalButton(context, 'Set as Input', () => set.type = Type.Input),
-        getModalButton(context, 'Set as Output', () => set.type = Type.Output),
-        getModalButton(context, 'Set as Nothing', () => set.type = Type.Nothing),
-        getModalButton(context, 'Delete', () => page.removeSet(set), color: Colors.redAccent),
-        Container(height: 30,)
-      ],);
-    });
-  }
-
-  Widget getModalButton(context, String text, onPress, {color}) {
-    var col = color == null ? Colors.black : color;
-    return Container(
-      margin: EdgeInsets.symmetric(horizontal: 30, vertical: 5),
-      child: FlatButton(onPressed: () {onPress(); Navigator.pop(context);}, child: Text(text, style: TextStyle(fontSize: 25, color: col),)),
     );
   }
 }

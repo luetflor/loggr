@@ -35,6 +35,12 @@ class LoggrPage extends ChangeNotifier
     notifyListeners();
     //Carry over every data change notification to update graphs
     set.addListener(() => notifyListeners());
+    //Fill List with null as all arrays should have same length
+    if(_sets.length > 1) {
+      while(set.values.length < _sets[0].values.length) {
+        set.values.add(null);
+      }
+    }
   }
   void removeSet(DataSet set) {
     _sets.remove(set);
@@ -90,9 +96,14 @@ class DataSet extends ChangeNotifier
     notifyListeners();
   }
 
-  List<double> get values => _values;
+  //Return a copy to not change existing values without notification
+  List<double> get values => List.from(_values);
   void addValue(double v) {
     _values.add(v);
+    notifyListeners();
+  }
+  void setValue(int index, double v) {
+    _values[index] = v;
     notifyListeners();
   }
 
