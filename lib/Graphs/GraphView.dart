@@ -6,6 +6,8 @@ import 'package:loggr/Data/LoggrPage.dart';
 import 'package:loggr/Graphs/DotPainter.dart';
 import 'package:provider/provider.dart';
 
+import 'AxisPainter.dart';
+
 class GraphView extends StatefulWidget
 {
   final Function(bool) showRestoreAction;
@@ -72,6 +74,15 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
                 page.inputs[0],
                 page.outputs,
                 Provider.of<LoggrData>(context)
+              ),),
+              CustomPaint(painter: AxisPainter(
+                  minX.value,
+                  minY.value,
+                  extentX.value,
+                  extentY.value,
+                  page.inputs[0],
+                  page.outputs,
+                  Provider.of<LoggrData>(context)
               ),),
             ],
           ),
