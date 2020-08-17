@@ -1,4 +1,6 @@
-import 'package:flutter/cupertino.dart';
+import 'dart:math' as math;
+
+import 'package:flutter/material.dart';
 import 'package:loggr/Data/LoggrData.dart';
 import 'package:loggr/Data/LoggrPage.dart';
 import 'package:loggr/Graphs/DotPainter.dart';
@@ -6,6 +8,10 @@ import 'package:provider/provider.dart';
 
 class GraphView extends StatefulWidget
 {
+  final Function(bool) showRestoreAction;
+
+  const GraphView(this.showRestoreAction, {Key key}) : super(key: key);
+
   @override
   State<StatefulWidget> createState() {
     return GraphViewState();
@@ -20,20 +26,30 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
   double oldMinX=0.0, oldMinY=0.0;
   double oldExtX=1.0, oldExtY=1.0;
 
-  AnimationController controller;
-  Animation<double> curvedAnimation;
-  Animation<double> minX, minY;
-  Animation<double> extentX, extentY;
+  //Scaling factor used in ScaleUpdate method to determine relative change in scaling
+  Offset oldScale = Offset(1.0, 1.0);
+  Offset oldFocal = Offset(0.0, 0.0);
+
+  AnimationController minX, minY;
+  AnimationController extentX, extentY;
+
+  final duration = Duration(milliseconds: 500);
+  final curve = Curves.easeInOut;
 
   @override
   void initState() {
-    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300))
+    minX = AnimationController(vsync: this, duration: Duration(milliseconds: 300),
+        value: 0.0, upperBound: double.infinity, lowerBound: double.negativeInfinity)
       ..addListener(() => setState(() {}));
-    curvedAnimation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
-    minX = Tween(begin: 0.0, end: 0.0).animate(curvedAnimation);
-    minY = Tween(begin: 0.0, end: 0.0).animate(curvedAnimation);
-    extentX = Tween(begin: 0.0, end: 1.0).animate(curvedAnimation);
-    extentY = Tween(begin: 0.0, end: 1.0).animate(curvedAnimation);
+    minY = AnimationController(vsync: this, duration: Duration(milliseconds: 300),
+        value: 0.0, upperBound: double.infinity, lowerBound: double.negativeInfinity)
+      ..addListener(() => setState(() {}));
+    extentX = AnimationController(vsync: this, duration: Duration(milliseconds: 300),
+        value: 1.0, upperBound: double.infinity, lowerBound: double.negativeInfinity)
+      ..addListener(() => setState(() {}));
+    extentY = AnimationController(vsync: this, duration: Duration(milliseconds: 300),
+        value: 1.0, upperBound: double.infinity, lowerBound: double.negativeInfinity)
+      ..addListener(() => setState(() {}));
     super.initState();
   }
 
@@ -46,6 +62,7 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
         return GestureDetector(
           child: Stack(
             fit: StackFit.expand,
+            alignment: Alignment.topRight,
             children: <Widget>[
               CustomPaint(painter: DotPainter(
                 minX.value,
@@ -55,15 +72,48 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
                 page.inputs[0],
                 page.outputs,
                 Provider.of<LoggrData>(context)
-              ),)
+              ),),
             ],
           ),
-          onScaleUpdate: (details) {
-            //TODO: Add Panning and Scaling of graph
+          onScaleStart: (details) {
+            oldScale = Offset(1, 1);
+            oldFocal = details.localFocalPoint;
           },
+          onScaleUpdate: (details) => panAndScale(details, context),
         );
       },
     );
+  }
+
+  void panAndScale(ScaleUpdateDetails details, BuildContext context) {
+    if(!manuallyChanged) {
+      widget.showRestoreAction(true);
+    }
+    manuallyChanged = true;
+    //Scaling
+    //Add a min Scale to avoid dividing by zero
+    Offset minScale = Offset(math.max(details.horizontalScale, 0.01), math.max(details.verticalScale, 0.01));
+    Offset relScale = Offset(minScale.dx/oldScale.dx, minScale.dy/oldScale.dy);
+    extentX.value /= relScale.dx;
+    extentY.value /= relScale.dy;
+    oldScale = Offset(minScale.dx, minScale.dy);
+
+    //TODO: Panning to scale around focal point
+    var scaling = Offset(extentX.value/context.size.width, extentY.value/context.size.height);
+    //var deltascale = Offset(details.localFocalPoint.dx*scaling.dx, details.localFocalPoint.dy*scaling.dy);
+
+
+    //Panning
+    var delta = details.localFocalPoint - oldFocal;
+    minX.value -= delta.dx*scaling.dx;
+    minY.value += delta.dy*scaling.dy;
+    oldFocal = details.localFocalPoint;
+
+    //Update old min/extent values for right jump back
+    oldMinX = minX.value;
+    oldMinY = minY.value;
+    oldExtX = extentX.value;
+    oldExtY = extentY.value;
   }
 
   void determineDefaultScaling(LoggrPage page) {
@@ -87,8 +137,8 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
       }
     }
     //Animate to them and add minimal extent
-    double marginX = minX == 0.0 ? 0.1 : minX*0.1;
-    double marginY = minY == 0.0 ? 0.1 : minY*0.1;
+    double marginX = minX == 0.0 ? 0.1 : (maxX-minX)*0.1;
+    double marginY = minY == 0.0 ? 0.1 : (maxY-minY)*0.1;
     var aminX = minX-marginX;
     var aminY = minY-marginY;
     var aextentX = maxX-minX+2*marginX;
@@ -96,11 +146,11 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
 
     //Animate if any values changed
     if(oldMinX != aminX || oldMinY != aminY || oldExtX != aextentX || oldExtY != aextentY) {
-      this.minX = Tween(begin: oldMinX, end: aminX).animate(curvedAnimation);
-      this.minY = Tween(begin: oldMinY, end: aminY).animate(curvedAnimation);
-      this.extentX = Tween(begin: oldExtX, end: aextentX).animate(curvedAnimation);
-      this.extentY = Tween(begin: oldExtY, end: aextentY).animate(curvedAnimation);
-      controller.forward(from: 0.0);
+      print('Changed');
+      this.minX.animateTo(aminX, duration: duration, curve: curve);
+      this.minY.animateTo(aminY, duration: duration, curve: curve);
+      this.extentX.animateTo(aextentX, duration: duration, curve: curve);
+      this.extentY.animateTo(aextentY, duration: duration, curve: curve);
     }
 
     //Set old values
@@ -108,5 +158,10 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
     oldMinY = aminY;
     oldExtX = aextentX;
     oldExtY = aextentY;
+  }
+
+  void restoreDefaultScaling() {
+    setState(() => manuallyChanged = false);
+    widget.showRestoreAction(false);
   }
 }

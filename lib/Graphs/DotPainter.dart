@@ -19,8 +19,6 @@ class DotPainter extends CustomPainter
     Paint pencil = Paint()
       ..color = data.accent
       ..style = PaintingStyle.fill;
-    print('$minX, $minY');
-    print('$extentX, $extentY');
 
     for(DataSet set in output) {
       for(int i=0; i<set.values.length; i++) {

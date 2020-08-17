@@ -106,7 +106,7 @@ class LoggrPage extends ChangeNotifier
     _title = map['title'];
     _sets = List<DataSet>();
     for(var set in map['sets']) {
-      _sets.add(DataSet.mapped(set));
+      addSet(DataSet.mapped(set));
     }
   }
 
