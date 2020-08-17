@@ -4,6 +4,11 @@ import 'package:provider/provider.dart';
 
 import 'Data/LoggrData.dart';
 
+/*
+ * This class is just for some experimentation with a formula editor bc I felt like it
+ * and really not an actual part of the app rn, which is why it is not at all functional.
+ */
+
 const List<String> mains = [
   'shift', 'menu', null, 'back', 'AC',
   'π', 'sin', 'cos', 'tan', 'i',
@@ -68,6 +73,7 @@ class FormulaEditorState extends State<FormulaEditor>
                   if(content is String) {
                     if(content == 'AC') return getButton(data, content, color: Color(0xffbc2a27));
                     if(content == 'back') return getButtonIcon(data, Icons.backspace, color: Color(0xffbc2a27));
+                    if(content == '=') return getButton(data, content, color: Colors.lightGreen);
                     return getButton(data, content, alt: alt[content]);
                   }
                   return Container();
@@ -87,12 +93,24 @@ class FormulaEditorState extends State<FormulaEditor>
         children: <Widget>[child, Text(alt, style: TextStyle(color: data.backgroundAlt, fontSize: 12),)],
       );
     }
+    //TODO: Decide on a design variant
     return SurfaceSwitch(false,
         width: size, height: size,
         margin: EdgeInsets.all(margin),
         color: color,
         child: Center(child: child,),
         onPress: () {},
+    );
+    return Container(
+      child: RaisedButton(
+        elevation: 3,
+        padding: EdgeInsets.all(0.0),
+        child: Center(child: child),
+        shape: StadiumBorder(),
+        color: color ?? data.background,
+        onPressed: () {},
+      ),
+      margin: EdgeInsets.all(margin),
     );
   }
 
