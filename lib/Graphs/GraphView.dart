@@ -1,5 +1,3 @@
-import 'dart:math' as math;
-
 import 'package:flutter/cupertino.dart';
 import 'package:loggr/Data/LoggrData.dart';
 import 'package:loggr/Data/LoggrPage.dart';
@@ -16,24 +14,26 @@ class GraphView extends StatefulWidget
 
 class GraphViewState extends State<GraphView> with TickerProviderStateMixin
 {
-  //Dimensions of the Viewport, which animate when changed using animateTo
+  //Dimensions of the Viewport
   bool manuallyChanged = false;
-  double minX, minY;
-  double extentX, extentY;
 
-  final animDuration = Duration(milliseconds: 300);
-  final animCurve = Curves.easeInOut;
+  double oldMinX=0.0, oldMinY=0.0;
+  double oldExtX=1.0, oldExtY=1.0;
+
+  AnimationController controller;
+  Animation<double> curvedAnimation;
+  Animation<double> minX, minY;
+  Animation<double> extentX, extentY;
 
   @override
   void initState() {
-    /*minX = AnimationController(vsync: this, duration: animDuration, value: 0.0)
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 300))
       ..addListener(() => setState(() {}));
-    minY = AnimationController(vsync: this, duration: animDuration, value: 0.0)
-      ..addListener(() => setState(() {}));
-    extentX = AnimationController(vsync: this, duration: animDuration, value: 1.0)
-      ..addListener(() => setState(() {}));
-    extentY = AnimationController(vsync: this, duration: animDuration, value: 1.0)
-      ..addListener(() => setState(() {}));*/
+    curvedAnimation = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
+    minX = Tween(begin: 0.0, end: 0.0).animate(curvedAnimation);
+    minY = Tween(begin: 0.0, end: 0.0).animate(curvedAnimation);
+    extentX = Tween(begin: 0.0, end: 1.0).animate(curvedAnimation);
+    extentY = Tween(begin: 0.0, end: 1.0).animate(curvedAnimation);
     super.initState();
   }
 
@@ -41,24 +41,26 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Consumer<LoggrPage>(
       builder: (context, page, child) {
-        //Determine Dimensions if not changed manually TODO: Only update if changed
+        //Determine Dimensions if not changed manually
         if(!manuallyChanged) determineDefaultScaling(page);
         return GestureDetector(
           child: Stack(
             fit: StackFit.expand,
             children: <Widget>[
               CustomPaint(painter: DotPainter(
-                minX,
-                minY,
-                extentX,
-                extentY,
+                minX.value,
+                minY.value,
+                extentX.value,
+                extentY.value,
                 page.inputs[0],
                 page.outputs,
                 Provider.of<LoggrData>(context)
               ),)
             ],
           ),
-          onScaleUpdate: (details) {},
+          onScaleUpdate: (details) {
+            //TODO: Add Panning and Scaling of graph
+          },
         );
       },
     );
@@ -87,9 +89,24 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
     //Animate to them and add minimal extent
     double marginX = minX == 0.0 ? 0.1 : minX*0.1;
     double marginY = minY == 0.0 ? 0.1 : minY*0.1;
-    this.minX = minX-marginX;
-    this.minY = minY-marginY;
-    this.extentX = maxX-minX+2*marginX;
-    this.extentY = maxY-minY+2*marginY + 0.05/(maxY-minY); //Adjust for AppBar
+    var aminX = minX-marginX;
+    var aminY = minY-marginY;
+    var aextentX = maxX-minX+2*marginX;
+    var aextentY = maxY-minY+2*marginY;
+
+    //Animate if any values changed
+    if(oldMinX != aminX || oldMinY != aminY || oldExtX != aextentX || oldExtY != aextentY) {
+      this.minX = Tween(begin: oldMinX, end: aminX).animate(curvedAnimation);
+      this.minY = Tween(begin: oldMinY, end: aminY).animate(curvedAnimation);
+      this.extentX = Tween(begin: oldExtX, end: aextentX).animate(curvedAnimation);
+      this.extentY = Tween(begin: oldExtY, end: aextentY).animate(curvedAnimation);
+      controller.forward(from: 0.0);
+    }
+
+    //Set old values
+    oldMinX = aminX;
+    oldMinY = aminY;
+    oldExtX = aextentX;
+    oldExtY = aextentY;
   }
 }

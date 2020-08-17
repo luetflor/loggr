@@ -27,7 +27,6 @@ class DotPainter extends CustomPainter
         if(input.values[i] != null && set.values[i] != null) {
           Offset pos = Offset(toScreenX(input.values[i], size), toScreenY(set.values[i], size));
           canvas.drawCircle(pos, 5.0, pencil);
-          print(pos);
         }
       }
     }
