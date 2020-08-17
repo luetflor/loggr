@@ -77,7 +77,7 @@ class PageViewerState extends State<PageViewer>
             expandedHeight: MediaQuery.of(context).size.height - 130,
             //Add some empty space on top where appbar is
             flexibleSpace: Column(children: <Widget>[
-              Container(height: 60,),
+              Container(height: 120,),
               Expanded(child: GraphView())
             ],),
           ),
