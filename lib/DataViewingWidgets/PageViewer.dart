@@ -75,7 +75,11 @@ class PageViewerState extends State<PageViewer>
             centerTitle: true,
             title: Text(widget.page.title, style: TextStyle(color: textC)),
             expandedHeight: MediaQuery.of(context).size.height - 130,
-            flexibleSpace: GraphView(),
+            //Add some empty space on top where appbar is
+            flexibleSpace: Column(children: <Widget>[
+              Container(height: 60,),
+              Expanded(child: GraphView())
+            ],),
           ),
 
           //Data View Type Selector
