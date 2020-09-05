@@ -59,6 +59,12 @@ class GraphViewState extends State<GraphView> with TickerProviderStateMixin
   Widget build(BuildContext context) {
     return Consumer<LoggrPage>(
       builder: (context, page, child) {
+        //Show Replacement if no Axis selected
+        if(page.inputs.isEmpty || page.outputs.isEmpty) {
+          return Center(
+            child: Text('Select an X and Y Axis to show Graph'),
+          );
+        }
         //Determine Dimensions if not changed manually
         if(!manuallyChanged) determineDefaultScaling(page);
         return GestureDetector(
