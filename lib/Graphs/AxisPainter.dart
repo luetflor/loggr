@@ -14,7 +14,9 @@ class AxisPainter extends CustomPainter
   List<DataSet> output;
   LoggrData data;
 
-  final coeffs = [0.25, 0.5, 0.75, 1];
+  final List<double> coeffs = [0.25, 0.5, 0.75, 1.0];
+  final nx = 5.0;
+  final ny = 5.0;
   final margin = 20.0;
   final pen = Paint()
     ..style = PaintingStyle.stroke
@@ -31,6 +33,30 @@ class AxisPainter extends CustomPainter
     axis.lineTo(margin, size.height-margin);
     axis.lineTo(size.width-margin, size.height-margin);
     canvas.drawPath(axis, pen);
+
+    //Find the distance between axes numbers where the count of numbers is nearest nx/ny
+    double orderX = math.log(extentX)/math.ln10;
+    double orderY = math.log(extentY)/math.ln10;
+    double factorX, mindeltaX = double.infinity;
+    double factorY, mindeltaY = double.infinity;
+    for(double coeff in coeffs) {
+        var curFactorX = coeff*math.pow(10.0, orderX);
+        var curFactorY = coeff*math.pow(10.0, orderY);
+        var deltaX = (extentX/curFactorX - nx).abs();
+        var deltaY = (extentY/curFactorY - ny).abs();
+        if(deltaX < mindeltaX) {
+          mindeltaX = deltaX;
+          factorX = curFactorX;
+        }
+        if(deltaY < mindeltaY) {
+          mindeltaY = deltaY;
+          factorY = curFactorY;
+        }
+    }
+
+
+    //Draw the axes
+
   }
 
   @override
