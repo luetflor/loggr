@@ -48,6 +48,7 @@ class LoggrData extends ChangeNotifier
       if(name.contains('.json')) {
         name = name.replaceAll('.json', '');
         _pages.add(LoggrPage(name, LoadState.empty));
+        _pages[_pages.length-1].nameChangedListener = (title) => notifyListeners();
       }
     }, onDone: () {
       _loading = false;
@@ -64,6 +65,7 @@ class LoggrData extends ChangeNotifier
   List<LoggrPage> get pages => _pages;
   void addPage(LoggrPage page) {
     _pages.add(page);
+    page.nameChangedListener = (title) => notifyListeners();
     notifyListeners();
   }
   Future<void> removePage(LoggrPage page) async {
