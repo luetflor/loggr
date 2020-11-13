@@ -66,8 +66,9 @@ class LoggrData extends ChangeNotifier
     _pages.add(page);
     notifyListeners();
   }
-  void removePage(LoggrPage page) {
+  Future<void> removePage(LoggrPage page) async {
     _pages.remove(page);
+    page.delete();
     notifyListeners();
   }
 

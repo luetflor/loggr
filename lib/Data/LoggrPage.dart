@@ -44,6 +44,16 @@ class LoggrPage extends ChangeNotifier
     file.writeAsString(json);
   }
 
+  Future<void> delete() async {
+    //Save in Apps private document storage
+    final appDir = await getApplicationDocumentsDirectory();
+    Directory dir = Directory('${appDir.path}/pages/');
+    dir.create(recursive: true);
+    print(dir.path + title + '.json');
+    File file = File(dir.path + title + '.json');
+    file.delete();
+  }
+
   Future<void> load({Function onFinished}) async {
     _loading = LoadState.loading;
     final appDir = await getApplicationDocumentsDirectory();
