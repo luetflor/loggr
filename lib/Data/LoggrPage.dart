@@ -71,6 +71,12 @@ class LoggrPage extends ChangeNotifier
     if(nameChangedListener != null) nameChangedListener(title);
   }
 
+  int get numValues {
+    if(sets.length > 0)
+      return sets[0].values.length;
+    return 0;
+  }
+
   List<DataSet> get sets => _sets;
   void addSet(DataSet set) {
     _sets.add(set);
