@@ -72,6 +72,7 @@ class LoggrPage extends ChangeNotifier
   }
 
   int get numValues {
+    //Can return len of first set as sets should always be same len
     if(sets.length > 0)
       return sets[0].values.length;
     return 0;
