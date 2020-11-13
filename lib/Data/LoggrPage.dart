@@ -79,8 +79,9 @@ class LoggrPage extends ChangeNotifier
     set.addListener(() => notifyListeners());
     //Fill List with null as all arrays should have same length
     if(_sets.length > 1) {
-      while(set.values.length < _sets[0].values.length) {
-        set.values.add(null);
+      int valuesToAdd = _sets[0].values.length - set.values.length;
+      for(int i=0; i<valuesToAdd; i++) {
+        set.addValue(null);
       }
     }
   }
