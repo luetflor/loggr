@@ -76,9 +76,17 @@ class LoggrPage extends ChangeNotifier
 
   String get title => _title;
   set title(String title) {
+    _rename(title, _title);
     _title = title;
     notifyListeners();
     if(nameChangedListener != null) nameChangedListener(title);
+  }
+
+  void _rename(String newTitle, String oldTitle) async {
+    final appDir = await getApplicationDocumentsDirectory();
+    Directory dir = Directory('${appDir.path}/pages/');
+    File file = File(dir.path + oldTitle + '.json');
+    file.rename(dir.path + newTitle + '.json');
   }
 
   int get numValues {
