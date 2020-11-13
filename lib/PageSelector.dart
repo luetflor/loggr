@@ -67,13 +67,34 @@ class PageSelector extends StatelessWidget
     showModalBottomSheet(backgroundColor: data.background, context: context, builder: (context) {
       return Column(mainAxisSize: MainAxisSize.min, children: <Widget>[
         Container(height: 20,),
-        getModalButton(context, 'Rename', () {}),
+        getModalButton(context, 'Rename', () {
+          Navigator.pop(context);
+          showRenameModal(context, page, data);
+        }),
         getModalButton(context, 'Delete', () {
           data.removePage(page);
           Navigator.pop(context);
         }, color: Colors.redAccent),
         Container(height: 30,)
       ],);
+    });
+  }
+
+  void showRenameModal(BuildContext context, LoggrPage page, LoggrData data) {
+    showModalBottomSheet(isScrollControlled: true, backgroundColor: data.background, context: context, builder: (context) {
+      EdgeInsets padding = MediaQuery.of(context).viewInsets;
+      return Container(
+        padding: padding,
+        child: TextField(
+          autofocus: true,
+          controller: TextEditingController(text: page.title),
+          style: TextStyle(fontSize: 30, color: data.textColor, fontWeight: FontWeight.w400),
+          onSubmitted: (text) {
+            page.title = text;
+            Navigator.pop(context);
+          },
+        ),
+      );
     });
   }
 }
