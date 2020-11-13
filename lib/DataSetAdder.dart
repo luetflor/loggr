@@ -28,7 +28,7 @@ class DataSetState extends State<DataSetAdder> with SingleTickerProviderStateMix
 
   @override
   void initState() {
-    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 500));
+    controller = AnimationController(vsync: this, duration: Duration(milliseconds: 150));
     controller.addListener(() => setState(() {}));
     controller.forward(); // Start of animating in
     animType = CurvedAnimation(parent: controller, curve: Curves.easeInOut);
@@ -101,49 +101,39 @@ class DataSetState extends State<DataSetAdder> with SingleTickerProviderStateMix
         ),
 
         //Type Selector
-        Container(
-          margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-          child: Row(
-            children: <Widget>[
-              Text('Type:', style: titleStyle, textAlign: TextAlign.start),
-              Expanded(child: Container(), flex: 3,),
-              SurfaceSwitch(
-                type == ValueType.Number,
-                margin: EdgeInsets.all(5),
-                child: Center(child: Text('1.23'),),
-                width: 50, height: 50,
-                onPress: () => setState(() {
-                  type = ValueType.Number;
-                  controller.forward(from: 0.0);
-                }),
-              ),
-              SurfaceSwitch(
-                type == ValueType.Function,
-                margin: EdgeInsets.all(5),
-                child: Center(child: Icon(Icons.functions),),
-                width: 50, height: 50,
-                onPress: () => setState(() {
-                  type = ValueType.Function;
-                  controller.forward(from: 0.0);
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => FormulaEditor(title: 'Add Function')));
-                }),
-              ),
-              Expanded(child: Container(), flex: 1,),
-            ],
-          ),
-        ),
+        buildTypeSelector(data),
 
         //Type Data Editor
-        Expanded(
-          child: Surface(
-            elevation: -animType.value,
-            constraints: BoxConstraints.expand(),
-            margin: EdgeInsets.symmetric(horizontal: 10),
-            padding: EdgeInsets.all(20),
-            child: Opacity(child: typeWidget, opacity: animType.value),
-          ),
-        )
+        Container(
+          child: Opacity(child: typeWidget, opacity: animType.value),
+          margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+        ),
       ],),
+    );
+  }
+
+  Widget buildTypeSelector(LoggrData data) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 30),
+      height: 70,
+      child: Row(crossAxisAlignment: CrossAxisAlignment.center, children: <Widget>[
+        buildTitleButton(data, 'Number', type == ValueType.Number, ValueType.Number),
+        Container(width: 10,),
+        buildTitleButton(data, 'Function', type == ValueType.Function, ValueType.Function),
+      ],),
+    );
+  }
+
+  Widget buildTitleButton(LoggrData data, String text, bool on, ValueType thisType) {
+    TextStyle style;
+    if(on) style = TextStyle(color: data.textColor, fontSize: 30 + 5*animType.value);
+    else style = TextStyle(color: data.textColor, fontSize: 30, fontWeight: FontWeight.w300);
+    return GestureDetector(
+      child: Text(text, style: style),
+      onTap: () => setState(() {
+        type = thisType;
+        controller.forward(from: 0.0);
+      }),
     );
   }
 }
@@ -160,7 +150,6 @@ class NumberTypeEditor extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, mainAxisSize: MainAxisSize.max, children: <Widget>[
-      Text('Numbers', style: titleStyle,),
       Row(children: <Widget>[
         Text('Axis:', style: titleStyle,),
         Expanded(child: Container()),
@@ -201,7 +190,6 @@ class FunctionTypeEditor extends StatelessWidget
   @override
   Widget build(BuildContext context) {
     return Column(crossAxisAlignment: CrossAxisAlignment.start, children: <Widget>[
-      Text('Function', style: titleStyle,),
       Text('Functionality yet to come!')
     ],);
   }

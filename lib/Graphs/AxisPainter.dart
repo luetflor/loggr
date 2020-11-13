@@ -14,7 +14,7 @@ class AxisPainter extends CustomPainter
   List<DataSet> output;
   LoggrData data;
 
-  final List<double> coeffs = [0.25, 0.5, 0.75, 1.0];
+  final coeffs = [0.25, 0.5, 0.75, 1.0];
   final nx = 5.0;
   final ny = 5.0;
   final margin = 20.0;
@@ -54,8 +54,11 @@ class AxisPainter extends CustomPainter
         }
     }
 
-
     //Draw the axes
+
+  }
+
+  void drawLineX() {
 
   }
 
